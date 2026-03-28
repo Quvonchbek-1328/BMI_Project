@@ -1,0 +1,11 @@
+node_modules
+dist
+.git
+Dockerfile
+.dockerignore
+*.md
+.vscode
+src/**/*.test.*
+src/**/*.spec.*
+src/test
+vitest.config.ts

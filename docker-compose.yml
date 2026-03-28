@@ -1,0 +1,58 @@
+services:
+  # ---- .NET Backend API ----
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      ai:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - APPLY_MIGRATIONS=true
+      - ConnectionStrings__DefaultConnection=Host=host.docker.internal;Port=5432;Database=${POSTGRES_DB:-riskwatch};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-quvonchbekt50}
+      - Jwt__Key=${JWT_KEY:-RiskWatchAI-SuperSecret-Key-MinLength-32-Characters!}
+      - Jwt__Issuer=RiskWatchAI
+      - Jwt__Audience=RiskWatchAI-Client
+      - Jwt__ExpiresInHours=24
+      - AiService__BaseUrl=http://ai:8000
+      - Cors__AllowedOrigins__0=http://localhost
+      - Cors__AllowedOrigins__1=http://localhost:8080
+    ports:
+      - "5000:5000"
+
+  # ---- Python AI Service ----
+  ai:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - CORS_ORIGINS=http://localhost,http://api:5000
+    ports:
+      - "8000:8000"
+
+  # ---- React Frontend ----
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=/api
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  # ---- Nginx Reverse Proxy ----
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+      - api
+      - ai
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro

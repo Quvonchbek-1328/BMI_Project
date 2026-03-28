@@ -1,0 +1,24 @@
+{
+  "model_name": "RandomForestClassifier",
+  "n_features": 13,
+  "feature_names": [
+    "task_complexity",
+    "team_workload",
+    "requirement_changes",
+    "bug_count",
+    "dependency_count",
+    "resource_availability",
+    "estimated_duration",
+    "actual_duration",
+    "sprint_velocity",
+    "communication_delay",
+    "previous_delay_count",
+    "team_experience_level",
+    "priority_level"
+  ],
+  "n_estimators": 100,
+  "accuracy": 0.746,
+  "trained_at": "2026-03-27T05:37:46.182764+00:00",
+  "train_samples": 4000,
+  "test_samples": 1000
+}
